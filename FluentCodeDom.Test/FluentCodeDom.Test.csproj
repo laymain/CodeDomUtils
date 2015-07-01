@@ -31,22 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LinqToCodedom, Version=1.0.0.0, Culture=neutral, PublicKeyToken=8b32a020163181f7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\FluentCodeDom.Linq\LinqToCodedom.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DeclarationTests.cs" />
@@ -54,17 +39,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="test.txt" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\FluentCodeDom.Linq\FluentCodeDom.Linq.csproj">
-      <Project>{90720CF1-B1E9-4896-92D4-C56A55E0E9A4}</Project>
+      <Project>{90720cf1-b1e9-4896-92d4-c56a55e0e9a4}</Project>
       <Name>FluentCodeDom.Linq</Name>
     </ProjectReference>
     <ProjectReference Include="..\FluentCodeDom\FluentCodeDom.csproj">
-      <Project>{68817B32-D337-4390-8F53-6BDAC2BAB82A}</Project>
+      <Project>{68817b32-d337-4390-8f53-6bdac2bab82a}</Project>
       <Name>FluentCodeDom</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="test.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

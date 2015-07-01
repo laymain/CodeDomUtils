@@ -5,10 +5,11 @@ using System.CodeDom;
 
 namespace FluentCodeDom
 {
-    public class FluentCodeConstructor : FluentCodeMethodBase<FluentCodeConstructor>
+    public class FluentCodeConstructor<TParent> : FluentCodeMethodBase<FluentCodeConstructor<TParent>, CodeConstructor, TParent>
+        where TParent : FluentCodeType<TParent>
     {
         public FluentCodeConstructor()
-            : base()
+            : base(new CodeConstructor())
         {
         }
 
@@ -22,7 +23,7 @@ namespace FluentCodeDom
         /// </summary>
         /// <param name="method">The property.</param>
         /// <param name="typeBuider">Optional, can be null.</param>
-        public FluentCodeConstructor(CodeConstructor method, FluentCodeType typeBuider)
+        public FluentCodeConstructor(CodeConstructor method, TParent typeBuider)
             : base(method, typeBuider)
         {
         }
@@ -36,7 +37,7 @@ namespace FluentCodeDom
         /// </summary>
         /// <param name="arguments"></param>
         /// <returns></returns>
-        public FluentCodeConstructor BaseArgs(params CodeExpression[] arguments)
+        public FluentCodeConstructor<TParent> BaseArgs(params CodeExpression[] arguments)
         {
             ((CodeConstructor)_wrappedType).BaseConstructorArgs.AddRange(arguments);
             return ThisConverter(this);
@@ -47,10 +48,22 @@ namespace FluentCodeDom
         /// </summary>
         /// <param name="arguments"></param>
         /// <returns></returns>
-        public FluentCodeConstructor ThisArgs(params CodeExpression[] arguments)
+        public FluentCodeConstructor<TParent> ThisArgs(params CodeExpression[] arguments)
         {
             ((CodeConstructor)_wrappedType).ChainedConstructorArgs.AddRange(arguments);
             return ThisConverter(this);
+        }
+
+        /////////////////////////////////////////////////////////////////
+        //                             End                             //
+        /////////////////////////////////////////////////////////////////
+
+        public TParent EndConstructor
+        {
+            get
+            {
+                return (TParent)EndInternal;
+            }
         }
     }
 }

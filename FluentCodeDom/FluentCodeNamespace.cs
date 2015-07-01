@@ -48,7 +48,7 @@ namespace FluentCodeDom
         /// </summary>
         /// <param name="name">The name of the class.</param>
         /// <returns></returns>
-        public FluentCodeType Class(string name)
+        public FluentCodeClass Class(string name)
         {
             return Class(MemberAttributes.FamilyAndAssembly, name);
         }
@@ -59,9 +59,9 @@ namespace FluentCodeDom
         /// <param name="attributes">The accessor and other member attributes.</param>
         /// <param name="name">The name of the class.</param>
         /// <returns></returns>
-        public FluentCodeType Class(MemberAttributes attributes, string name)
+        public FluentCodeClass Class(MemberAttributes attributes, string name)
         {
-            var typeBuilder = new FluentCodeType(new CodeTypeDeclaration(), this);
+            var typeBuilder = new FluentCodeClass(new CodeTypeDeclaration(), this);
             typeBuilder.Name(name);
             typeBuilder.IsClass();
             typeBuilder.Attributes(attributes);
@@ -74,7 +74,7 @@ namespace FluentCodeDom
         /// </summary>
         /// <param name="name">The name of the class.</param>
         /// <returns></returns>
-        public FluentCodeType Interface(string name)
+        public FluentCodeInterface Interface(string name)
         {
             return Interface(MemberAttributes.FamilyAndAssembly, name);
         }
@@ -85,9 +85,9 @@ namespace FluentCodeDom
         /// <param name="attributes">The member attributes.</param>
         /// <param name="name">The name of the class.</param>
         /// <returns></returns>
-        public FluentCodeType Interface(MemberAttributes attributes, string name)
+        public FluentCodeInterface Interface(MemberAttributes attributes, string name)
         {
-            var typeBuilder = new FluentCodeType(new CodeTypeDeclaration(), this);
+            var typeBuilder = new FluentCodeInterface(new CodeTypeDeclaration(), this);
             typeBuilder.Name(name);
             typeBuilder.IsInterface();
             typeBuilder.Attributes(attributes);
@@ -115,6 +115,18 @@ namespace FluentCodeDom
             enumDeclaration.Name = name;
 
             return new FluentCodeEnum(enumDeclaration, this);
+        }
+
+        /////////////////////////////////////////////////////////////////
+        //                           Public                            //
+        /////////////////////////////////////////////////////////////////
+
+        public FluentCodeCompileUnit EndNamespace
+        {
+            get
+            {
+                return EndInternal;
+            }
         }
     }
 }

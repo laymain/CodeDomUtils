@@ -14,35 +14,35 @@ namespace FluentCodeDom
         //                            If                               //
         /////////////////////////////////////////////////////////////////
 
-        public static FluentCodeBody<TParent, TThis>.IfCodeBody If<TParent, TThis>(FluentCodeBody<TParent, TThis> body, 
+        public static IfCodeBody<TThis> If<TParent, TThis>(FluentCodeBody<TParent, TThis> body, 
             Expression condition)
             where TThis : FluentCodeBody<TParent, TThis>
         {
             return IfEmittedBase<TParent, TThis>(body, condition);
         }
 
-        public static FluentCodeBody<TParent, TThis>.IfCodeBody If<TParent, TThis>(this FluentCodeBody<TParent, TThis> body, 
+        public static IfCodeBody<TThis> If<TParent, TThis>(this FluentCodeBody<TParent, TThis> body, 
             Expression<Func<bool>> condition)
             where TThis : FluentCodeBody<TParent, TThis>
         {
             return IfEmittedBase<TParent, TThis>(body, condition);
         }
 
-        public static FluentCodeBody<TParent, TThis>.IfCodeBody If<TParent, TThis, T>(this FluentCodeBody<TParent, TThis> body, 
+        public static IfCodeBody<TThis> If<TParent, TThis, T>(this FluentCodeBody<TParent, TThis> body, 
             Expression<Func<T, bool>> condition)
             where TThis : FluentCodeBody<TParent, TThis>
         {
             return IfEmittedBase<TParent, TThis>(body, condition);
         }
 
-        public static FluentCodeBody<TParent, TThis>.IfCodeBody If<TParent, TThis, T, T2>(this FluentCodeBody<TParent, TThis> body, 
+        public static IfCodeBody<TThis> If<TParent, TThis, T, T2>(this FluentCodeBody<TParent, TThis> body, 
             Expression<Func<T, T2, bool>> condition)
             where TThis : FluentCodeBody<TParent, TThis>
         {
             return IfEmittedBase<TParent, TThis>(body, condition);
         }
 
-        public static FluentCodeBody<TParent, TThis>.IfCodeBody IfEmittedBase<TParent, TThis>(FluentCodeBody<TParent, TThis> body, 
+        public static IfCodeBody<TThis> IfEmittedBase<TParent, TThis>(FluentCodeBody<TParent, TThis> body, 
             Expression condition)
             where TThis : FluentCodeBody<TParent, TThis>
         {

@@ -1,1 +1,0 @@
-﻿This is a sample text that is used by a generated FileStream.ReadToEnd Statement

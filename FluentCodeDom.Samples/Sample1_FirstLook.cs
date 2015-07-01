@@ -14,11 +14,11 @@ namespace FluentCodeDom.Sample1
             CodeCompileUnit compileUnit = new FluentCodeCompileUnit()
                 .Namespace("Sample1")
                     .Class("Program")
-                        .Method(MemberAttributes.Public | MemberAttributes.Static, "Main").Parameter(typeof(string[]), "args").Body
+                        .Method(MemberAttributes.Public | MemberAttributes.Static, "Main").Parameter(typeof(string[]), "args")
                             .CallStatic(typeof(Console), "WriteLine", Expr.Primitive("Hello Fluent CodeDom"))
-                        .End.End
-                    .End
-                .End
+                        .EndMethod
+                    .EndClass
+                .EndNamespace
             .EndFluent();
 
             Assembly assembly = Helper.CodeDomHelper.CompileInMemory(compileUnit);

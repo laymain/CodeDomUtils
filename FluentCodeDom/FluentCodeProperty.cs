@@ -5,7 +5,8 @@ using System.CodeDom;
 
 namespace FluentCodeDom
 {
-    public class FluentCodeProperty : FluentCodeTypeMember<FluentCodeProperty, CodeMemberProperty, FluentCodeType>
+    public class FluentCodeProperty<TParent> : FluentCodeTypeMember<FluentCodeProperty<TParent>, CodeMemberProperty, TParent>
+        where TParent : FluentCodeType<TParent>
     {
         public FluentCodeProperty()
             : this(new CodeMemberProperty())
@@ -18,30 +19,30 @@ namespace FluentCodeDom
 
         }
 
-        public FluentCodeProperty(CodeMemberProperty property, FluentCodeType type)
-            : base(property, type)
+        public FluentCodeProperty(CodeMemberProperty property, FluentCodeType<TParent> type)
+            : base(property, (TParent)type)
         { 
         }
 
-        public FluentCodeProperty Name(string name)
+        public FluentCodeProperty<TParent> Name(string name)
         {
             _wrappedType.Name = name;
             return this;
         }
 
-        public FluentCodeProperty Attributes(MemberAttributes attributes)
+        public FluentCodeProperty<TParent> Attributes(MemberAttributes attributes)
         {
             _wrappedType.Attributes = attributes;
             return this;
         }
 
-        public FluentCodeProperty Type(Type type)
+        public FluentCodeProperty<TParent> Type(Type type)
         {
             _wrappedType.Type = new CodeTypeReference(type);
             return this;
         }
 
-        public FluentCodeProperty Type(CodeTypeReference type)
+        public FluentCodeProperty<TParent> Type(CodeTypeReference type)
         {
             _wrappedType.Type = type;
             return this;
@@ -51,25 +52,37 @@ namespace FluentCodeDom
         /// Info: CodeDOM does not support different accessors for get and set.
         /// </summary>
         /// <returns></returns>
-        public FluentCodePropertyBody Get
+        public FluentCodeGetPropertyBody Get
         {
             get
             {
                 _wrappedType.HasGet = true;
-                return new FluentCodePropertyBody(
+                return new FluentCodeGetPropertyBody(
                     this, new CodeBodyProvider(_wrappedType.GetStatements)
                     );
             }
         }
 
-        public FluentCodePropertyBody Set
+        public FluentCodeSetPropertyBody Set
         {
             get
             {
                 _wrappedType.HasGet = true;
-                return new FluentCodePropertyBody(
+                return new FluentCodeSetPropertyBody(
                     this, new CodeBodyProvider(_wrappedType.SetStatements)
                     );
+            }
+        }
+
+        /////////////////////////////////////////////////////////////////
+        //                             End                             //
+        /////////////////////////////////////////////////////////////////
+
+        public TParent EndProperty
+        {
+            get
+            {
+                return EndInternal;
             }
         }
 
@@ -77,11 +90,43 @@ namespace FluentCodeDom
         //                            Body                             //
         /////////////////////////////////////////////////////////////////
 
-        public class FluentCodePropertyBody : FluentCodeBody<FluentCodeProperty, FluentCodePropertyBody>
+        public class FluentCodeGetPropertyBody : FluentCodeBody<FluentCodeProperty<TParent>, FluentCodeGetPropertyBody>
         {
-            public FluentCodePropertyBody(FluentCodeProperty property, ICodeBodyProvider bodyProvider)
+            public FluentCodeGetPropertyBody(FluentCodeProperty<TParent> property, ICodeBodyProvider bodyProvider)
                 : base(property, bodyProvider)
             {
+            }
+
+            /////////////////////////////////////////////////////////////////
+            //                             End                             //
+            /////////////////////////////////////////////////////////////////
+
+            public FluentCodeProperty<TParent> EndGet
+            {
+                get
+                {
+                    return EndInternal;
+                }
+            }
+        }
+
+        public class FluentCodeSetPropertyBody : FluentCodeBody<FluentCodeProperty<TParent>, FluentCodeSetPropertyBody>
+        {
+            public FluentCodeSetPropertyBody(FluentCodeProperty<TParent> property, ICodeBodyProvider bodyProvider)
+                : base(property, bodyProvider)
+            {
+            }
+
+            /////////////////////////////////////////////////////////////////
+            //                             End                             //
+            /////////////////////////////////////////////////////////////////
+
+            public FluentCodeProperty<TParent> EndSet
+            {
+                get
+                {
+                    return EndInternal;
+                }
             }
         }
     }

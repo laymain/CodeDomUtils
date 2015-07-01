@@ -65,5 +65,39 @@ namespace FluentCodeDom
         {
             return Value(key, Expr.Primitive(value));
         }
+
+        /// <summary>
+        /// Adds a base type. Its possible to define multiple base types.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public FluentCodeEnum BaseType(Type type)
+        {
+            _wrappedType.BaseTypes.Add(type);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a base type. Its possible to define multiple base types.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public FluentCodeEnum BaseType(CodeTypeReference type)
+        {
+            _wrappedType.BaseTypes.Add(type); 
+            return this;
+        }
+
+        /////////////////////////////////////////////////////////////////
+        //                             End                             //
+        /////////////////////////////////////////////////////////////////
+
+        public FluentCodeNamespace EndEnum
+        {
+            get
+            {
+                return EndInternal;
+            }
+        }
     }
 }

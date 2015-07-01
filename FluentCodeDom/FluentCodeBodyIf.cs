@@ -5,60 +5,80 @@ using System.CodeDom;
 
 namespace FluentCodeDom
 {
-    public abstract partial class FluentCodeBody<TParent, TThis>
+    public class IfCodeBody<TParent> : FluentCodeBody<TParent, IfCodeBody<TParent>>, ICodeBodyProvider
     {
-        public class IfCodeBody :
-            FluentCodeBody<FluentCodeBody<TParent, TThis>, IfCodeBody>, ICodeBodyProvider
+        public IfCodeBody(CodeConditionStatement condition, TParent parent)
+            : base(parent, new CodeBodyProvider(condition.TrueStatements))
         {
-            public IfCodeBody(CodeConditionStatement condition, FluentCodeBody<TParent, TThis> parent)
-                : base(parent, new CodeBodyProvider(condition.TrueStatements))
+            _codeConditionStatement = condition;
+        }
+
+        protected CodeConditionStatement _codeConditionStatement;
+
+        public ElseCodeBody<TParent> Else
+        {
+            get
             {
-                _codeConditionStatement = condition;
-            }
-
-            protected CodeConditionStatement _codeConditionStatement;
-
-            public ElseCodeBody Else
-            {
-                get
-                {
-                    return new ElseCodeBody(_codeConditionStatement, _parent);
-                }
-            }
-
-            #region ICodeBodyProvider Member
-
-            CodeStatementCollection ICodeBodyProvider.Statements
-            {
-                get { return _codeConditionStatement.TrueStatements; }
-            }
-
-            #endregion
-
-            public static CodeConditionStatement GetCodeConditionStatement(IfCodeBody ifCodeBody)
-            {
-                return ifCodeBody._codeConditionStatement;
+                return new ElseCodeBody<TParent>(_codeConditionStatement, _parent);
             }
         }
 
-        public class ElseCodeBody : FluentCodeBody<TParent, ElseCodeBody>, ICodeBodyProvider
+        /////////////////////////////////////////////////////////////////
+        //                             End                             //
+        /////////////////////////////////////////////////////////////////
+
+        public TParent EndIf
         {
-            public ElseCodeBody(CodeConditionStatement condition, TParent parent)
-                : base(parent, new CodeBodyProvider(condition.FalseStatements))
+            get
             {
-                _codeConditionStatement = condition;
+                return (TParent)(object)EndInternal;
             }
-
-            protected CodeConditionStatement _codeConditionStatement;
-
-            #region ICodeBodyProvider Member
-
-            CodeStatementCollection ICodeBodyProvider.Statements
-            {
-                get { return _codeConditionStatement.FalseStatements; }
-            }
-
-            #endregion
         }
+
+        #region ICodeBodyProvider Member
+
+        CodeStatementCollection ICodeBodyProvider.Statements
+        {
+            get { return _codeConditionStatement.TrueStatements; }
+        }
+
+        #endregion
+
+        public static CodeConditionStatement GetCodeConditionStatement(IfCodeBody<TParent> ifCodeBody)
+        {
+            return ifCodeBody._codeConditionStatement;
+        }
+    }
+
+    public class ElseCodeBody<TParent> : FluentCodeBody<TParent, ElseCodeBody<TParent>>, ICodeBodyProvider
+    {
+        public ElseCodeBody(CodeConditionStatement condition, TParent parent)
+            : base(parent, new CodeBodyProvider(condition.FalseStatements))
+        {
+            _codeConditionStatement = condition;
+        }
+
+        protected CodeConditionStatement _codeConditionStatement;
+
+        /////////////////////////////////////////////////////////////////
+        //                             End                             //
+        /////////////////////////////////////////////////////////////////
+
+        public TParent EndIf
+        {
+            get
+            {
+                return EndInternal;
+            }
+        }
+
+        #region ICodeBodyProvider Member
+
+        CodeStatementCollection ICodeBodyProvider.Statements
+        {
+            get { return _codeConditionStatement.FalseStatements; }
+        }
+
+        #endregion
     }
 }

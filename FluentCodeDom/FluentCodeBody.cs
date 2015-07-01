@@ -5,7 +5,7 @@ using System.CodeDom;
 
 namespace FluentCodeDom
 {
-    public abstract partial class FluentCodeBody<TParent, TThis> : FluentWrapperlessTemplate<TParent> where TThis : FluentCodeBody<TParent, TThis>
+    public abstract partial class FluentCodeBody<TParent, TThis> : FluentWrapperlessTemplate<TParent>, ICodeBodyProvider where TThis : FluentCodeBody<TParent, TThis>
     {
         public FluentCodeBody(TParent parent, ICodeBodyProvider bodyProvider)
             : base(parent)
@@ -225,12 +225,12 @@ namespace FluentCodeDom
         //                            If                               //
         /////////////////////////////////////////////////////////////////
 
-        public IfCodeBody If(CodeExpression condition)
+        public IfCodeBody<TThis> If(CodeExpression condition)
         {
             CodeConditionStatement statement = new CodeConditionStatement();
             statement.Condition = condition;
             AddStatement(statement);
-            return new IfCodeBody(statement, this);
+            return new IfCodeBody<TThis>(statement, ThisConverter(this));
         }
 
         /////////////////////////////////////////////////////////////////
@@ -242,7 +242,7 @@ namespace FluentCodeDom
         /// <summary>
         /// Creates a for loop for every element of an array collection. For example for(int i = 0; i LesserThan array.Lengh; i = i + 1) { ... }
         /// </summary>
-        public ForCodeBody ForArray(string initVariableName, CodeExpression array)
+        public ForCodeBody<TThis> ForArray(string initVariableName, CodeExpression array)
         { 
             return ForArray(IntCodeType, initVariableName, array);
         }
@@ -250,7 +250,7 @@ namespace FluentCodeDom
         /// <summary>
         /// Creates a for loop for every element of an array collection. For example for(int i = 0; i LesserThan array.Lengh; i = i + 1) { ... }
         /// </summary>
-        public ForCodeBody ForArray(CodeTypeReference arrayElementType, string initVariableName, CodeExpression array)
+        public ForCodeBody<TThis> ForArray(CodeTypeReference arrayElementType, string initVariableName, CodeExpression array)
         { 
             var initExpr = new CodeVariableDeclarationStatement(arrayElementType, initVariableName, Expr.Primitive(0));
             var testExpr = Expr.Op(Expr.Var(initVariableName), CodeBinaryOperatorType.LessThan, Expr.Prop(array, "Length"));
@@ -265,7 +265,7 @@ namespace FluentCodeDom
         /// <param name="initStatement">A System.CodeDom.CodeStatement containing the loop initialization statement</param>
         /// <param name="testExpression">A System.CodeDom.CodeExpression containing the varDeclarationExpr to test for exit condition.</param>
         /// <param name="incrementStatment">An array of type System.CodeDom.CodeStatement containing the statements within the loop.</param>
-        public ForCodeBody For(CodeStatement initStatement, CodeExpression testExpression, CodeStatement incrementStatment)
+        public ForCodeBody<TThis> For(CodeStatement initStatement, CodeExpression testExpression, CodeStatement incrementStatment)
         {
             //CodeStatement[] statements = new CodeStatement[]
 
@@ -275,20 +275,20 @@ namespace FluentCodeDom
             iteratorStmt.IncrementStatement = incrementStatment;
 
             AddStatement(iteratorStmt);
-            return new ForCodeBody(iteratorStmt, this);
+            return new ForCodeBody<TThis>(iteratorStmt, ThisConverter(this));
         }
 
         /////////////////////////////////////////////////////////////////
         //                           Try                               //
         /////////////////////////////////////////////////////////////////
 
-        public TryCodeBody Try
+        public TryCodeBody<TThis> Try
         {
             get
             { 
                 var stmt = new CodeTryCatchFinallyStatement();
                 AddStatement(stmt);
-                return new TryCodeBody(stmt, this);
+                return new TryCodeBody<TThis>(stmt, ThisConverter(this));
             }
         }
 
@@ -301,10 +301,10 @@ namespace FluentCodeDom
         /// </summary>
         /// <param name="testExpression"></param>
         /// <returns></returns>
-        public WhileEmuCodeBody WhileEmu(CodeExpression testExpression)
+        public WhileEmuCodeBody<TThis> WhileEmu(CodeExpression testExpression)
         {
-            var whileStmt = new WhileEmuCodeBody(testExpression, this);
-            AddStatement(IteratorCodeBody<WhileEmuCodeBody>.GetIteratorStatement(whileStmt));
+            var whileStmt = new WhileEmuCodeBody<TThis>(testExpression, ThisConverter(this));
+            AddStatement(IteratorCodeBody<TThis, WhileEmuCodeBody<TThis>>.GetIteratorStatement(whileStmt));
             return whileStmt;
         }
 
@@ -319,7 +319,7 @@ namespace FluentCodeDom
         /// <param name="itemVarName">The name of the iterator variable</param>
         /// <param name="collectionExpr">The collection which should be enumerated.</param>
         /// <returns></returns>
-        public ForeachEmuCodeBody ForeachEmu(Type itemType, string itemVarName, CodeExpression collectionExpr)
+        public ForeachEmuCodeBody<TThis> ForeachEmu(Type itemType, string itemVarName, CodeExpression collectionExpr)
         {
             return ForeachEmu(new CodeTypeReference(itemType), itemVarName, collectionExpr);
         }
@@ -331,10 +331,10 @@ namespace FluentCodeDom
         /// <param name="itemVarName">The name of the iterator variable</param>
         /// <param name="collectionExpr">The collection which should be enumerated.</param>
         /// <returns></returns>
-        public ForeachEmuCodeBody ForeachEmu(CodeTypeReference itemType, string itemVarName, CodeExpression collectionExpr)
+        public ForeachEmuCodeBody<TThis> ForeachEmu(CodeTypeReference itemType, string itemVarName, CodeExpression collectionExpr)
         { 
             // Adds its statements by itself
-            var foreachCodeBody = new ForeachEmuCodeBody(itemType, itemVarName, collectionExpr, this);
+            var foreachCodeBody = new ForeachEmuCodeBody<TThis>(itemType, itemVarName, collectionExpr, ThisConverter(this));
             foreachCodeBody.AddStatements();
             return foreachCodeBody;
         }
@@ -347,10 +347,10 @@ namespace FluentCodeDom
         /// A using statement emulated with a try-finally block.
         /// </summary>
         /// <returns></returns>
-        public UsingEmuCodeBody UsingEmu(CodeVariableDeclarationStatement variableExpr)
+        public UsingEmuCodeBody<TThis> UsingEmu(CodeVariableDeclarationStatement variableExpr)
         {
-            var usingStmt = new UsingEmuCodeBody(variableExpr, this);
-            AddStatement(UsingEmuCodeBody.GetTryCatchFinallyStatement(usingStmt));
+            var usingStmt = new UsingEmuCodeBody<TThis>(variableExpr, ThisConverter(this));
+            AddStatement(UsingEmuCodeBody<TThis>.GetTryCatchFinallyStatement(usingStmt));
             return usingStmt;
         }
 
@@ -358,12 +358,25 @@ namespace FluentCodeDom
         /// A using statement emulated with a try-finally block.
         /// </summary>
         /// <returns></returns>
-        public UsingEmuCodeBody UsingEmu(CodeVariableReferenceExpression variableExpr)
+        public UsingEmuCodeBody<TThis> UsingEmu(CodeVariableReferenceExpression variableExpr)
         {
-            var usingStmt = new UsingEmuCodeBody(variableExpr, this);
-            AddStatement(UsingEmuCodeBody.GetTryCatchFinallyStatement(usingStmt));
+            var usingStmt = new UsingEmuCodeBody<TThis>(variableExpr, ThisConverter(this));
+            AddStatement(UsingEmuCodeBody<TThis>.GetTryCatchFinallyStatement(usingStmt));
             return usingStmt;
         }
+
+        /////////////////////////////////////////////////////////////////
+        //                   ICodeBodyProvider                         //
+        /////////////////////////////////////////////////////////////////
+
+        #region ICodeBodyProvider Member
+
+        CodeStatementCollection ICodeBodyProvider.Statements
+        {
+            get { return _bodyProvider.Statements; }
+        }
+
+        #endregion
     }
 
 }

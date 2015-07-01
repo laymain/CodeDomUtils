@@ -14,11 +14,11 @@ namespace FluentCodeDom.Sample3
             CodeCompileUnit compileUnit = new FluentCodeCompileUnit()
                 .Namespace("Sample3")
                     .Class("Program")
-                        .Method(MemberAttributes.Public | MemberAttributes.Static, "Main").Parameter(typeof(string[]), "args").Body
+                        .Method(MemberAttributes.Public | MemberAttributes.Static, "Main").Parameter(typeof(string[]), "args")
                             .ConsoleWriteLine(Expr.Primitive("Hello Fluent CodeDom")).UserData("Key", "Value")
-                        .End.End
-                    .End
-                .End
+                        .EndMethod
+                    .EndClass
+                .EndNamespace
             .EndFluent();
 
             Assembly assembly = Helper.CodeDomHelper.CompileInMemory(compileUnit);
@@ -33,7 +33,7 @@ namespace FluentCodeDom.Sample3
         /// </summary>
         /// <param name="textExpr"></param>
         /// <returns></returns>
-        public static FluentCodeBody<TParent, TThis> ConsoleWriteLine<TParent, TThis>(this FluentCodeBody<TParent, TThis> body, params CodeExpression[] textExpr)
+        public static TThis ConsoleWriteLine<TParent, TThis>(this FluentCodeBody<TParent, TThis> body, params CodeExpression[] textExpr)
             where TThis : FluentCodeBody<TParent, TThis>
         {
             return body.CallStatic(typeof(Console), "WriteLine", textExpr);
@@ -43,7 +43,7 @@ namespace FluentCodeDom.Sample3
         /// Adds a keyValuePair the user data of the last added statement.
         /// </summary>
         /// <returns></returns>
-        public static FluentCodeBody<TParent, TThis> UserData<TParent, TThis>(this FluentCodeBody<TParent, TThis> body, object key, object value)
+        public static TThis UserData<TParent, TThis>(this FluentCodeBody<TParent, TThis> body, object key, object value)
             where TThis : FluentCodeBody<TParent, TThis>
         {
             ICodeBodyProvider bodyProvider = FluentCodeBody<TParent, TThis>.GetBodyProvider(body);
@@ -52,7 +52,7 @@ namespace FluentCodeDom.Sample3
 
             bodyProvider.Statements[bodyProvider.Statements.Count - 1].UserData.Add(key, value);
 
-            return body;
+            return (TThis)(object)body;
         }
     }
 }

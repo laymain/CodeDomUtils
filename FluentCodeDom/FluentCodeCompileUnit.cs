@@ -5,6 +5,9 @@ using System.CodeDom;
 
 namespace FluentCodeDom
 {
+    /// <summary>
+    /// A wrapper for a CodeCompileUnit
+    /// </summary>
     public class FluentCodeCompileUnit : FluentTemplate<CodeCompileUnit>
     {
         public FluentCodeCompileUnit()

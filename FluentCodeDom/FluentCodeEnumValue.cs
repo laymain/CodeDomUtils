@@ -24,5 +24,17 @@ namespace FluentCodeDom
             _wrappedType.InitExpression = value;
             return this;
         }
+
+        /////////////////////////////////////////////////////////////////
+        //                             End                             //
+        /////////////////////////////////////////////////////////////////
+
+        public FluentCodeEnum EndValue
+        {
+            get
+            {
+                return EndInternal;
+            }
+        }
     }
 }

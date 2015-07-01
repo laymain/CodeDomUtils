@@ -9,15 +9,16 @@ namespace FluentCodeDom
     /// The base class for constructors and methods
     /// </summary>
     /// <typeparam name="TThis"></typeparam>
-    public abstract class FluentCodeMethodBase<TThis> : FluentCodeTypeMember<TThis, CodeMemberMethod, FluentCodeType>, ICodeBodyProvider
-        where TThis : FluentCodeMethodBase<TThis>
+    /// <typeparam name="TWrappedType">The type wrapped by this class. Must inherit CodeMemberMethod</typeparam>
+    /// <typeparam name="TParent"></typeparam>
+    public abstract class FluentCodeMethodBase<TThis, TWrappedType, TParent> : FluentCodeBody<FluentCodeType<TParent>, TThis>, ICodeBodyProvider
+        where TThis : FluentCodeMethodBase<TThis, TWrappedType, TParent>
+        where TWrappedType : CodeMemberMethod
+        where TParent : FluentCodeType<TParent>
     {
-        public FluentCodeMethodBase()
-            : this(new CodeMemberMethod())
-        {
-        }
+         //: FluentCodeTypeMember<TThis, TWrappedType, FluentCodeType>
 
-        public FluentCodeMethodBase(CodeMemberMethod method)
+        public FluentCodeMethodBase(TWrappedType method)
             : this(method, null)
         {
         }
@@ -25,12 +26,21 @@ namespace FluentCodeDom
         /// <summary>
         /// Creates a new instance.
         /// </summary>
-        /// <param name="method">The property.</param>
-        /// <param name="typeBuider">Optional, can be null.</param>
-        public FluentCodeMethodBase(CodeMemberMethod method, FluentCodeType typeBuider)
-            : base(method, typeBuider)
+        /// <param name="method">The wrapped type.</param>
+        /// <param name="parentType">Optional, can be null.</param>
+        public FluentCodeMethodBase(TWrappedType method, FluentCodeType<TParent> parentType)
+            : base(parentType, new CodeBodyProvider(method.Statements))
         {
+            _codeTypeMember = new FluentTypeMemberMethodDummy(method);
+            _wrappedType = method;
         }
+
+        protected internal TWrappedType _wrappedType;
+
+        /// <summary>
+        /// Usage of FluentCodeProperty as TTHis becuas method does not implement CodeTypeMember
+        /// </summary>
+        protected FluentTypeMemberMethodDummy _codeTypeMember;
 
         /////////////////////////////////////////////////////////////////
         //                           Public                            //
@@ -96,25 +106,86 @@ namespace FluentCodeDom
             return ThisConverter(this);
         }
 
-        private FluentMethodBody _body;
-        public FluentMethodBody Body
-        {
-            get
-            {
-                if (_body == null)
-                {
-                    _body = new FluentMethodBody(ThisConverter(this));
-                }
+        //private FluentMethodBody _body;
+        //public FluentMethodBody Body
+        //{
+        //    get
+        //    {
+        //        if (_body == null)
+        //        {
+        //            _body = new FluentMethodBody(ThisConverter(this));
+        //        }
 
-                return _body;
-            }
+        //        return _body;
+        //    }
+        //}
+
+        /////////////////////////////////////////////////////////////////
+        //                         CodeTypeMember                      //
+        /////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Adds a non documentation comment.
+        /// </summary>
+        /// <param name="comment"></param>
+        /// <returns></returns>
+        public TThis MethodComment(string comment)
+        {
+            _codeTypeMember.Comment(comment);
+            return ThisConverter(this);
+        }
+
+        /// <summary>
+        /// Comments the specified comment.
+        /// </summary>
+        /// <param name="comment">The comment.</param>
+        /// <param name="documentationComment"><c>true</c> if the comment is a documentation comment. otherwise <c>false</c>.</param>
+        /// <returns></returns>
+        public TThis MethodComment(string comment, bool documentationComment)
+        {
+            _codeTypeMember.Comment(comment, documentationComment);
+            return ThisConverter(this);
+        }
+
+        public TThis MethodComment(CodeCommentStatement commentStatment)
+        {
+            _codeTypeMember.Comment(commentStatment);
+            return ThisConverter(this);
+        }
+
+        public TThis CustomAttribute(Type attributeType, params CodeAttributeArgument[] arguments)
+        {
+            _codeTypeMember.CustomAttribute(attributeType, arguments);
+            return ThisConverter(this);
+        }
+
+        public TThis CustomAttribute(CodeTypeReference attributeType, params CodeAttributeArgument[] arguments)
+        {
+            _codeTypeMember.CustomAttribute(attributeType, arguments);
+            return ThisConverter(this);
+        }
+
+        public class FluentTypeMemberMethodDummy : FluentCodeTypeMember<FluentTypeMemberMethodDummy, TWrappedType, FluentCodeType<TParent>>
+        {
+            public FluentTypeMemberMethodDummy(TWrappedType wrappedMethod)
+                : base(wrappedMethod)
+            { }
+        }
+
+        /////////////////////////////////////////////////////////////////
+        //                             End                             //
+        /////////////////////////////////////////////////////////////////
+
+        public TWrappedType EndFluent()
+        {
+            return _wrappedType;
         }
 
         /////////////////////////////////////////////////////////////////
         //                           Static                            //
         /////////////////////////////////////////////////////////////////
 
-        public static CodeMemberMethod GetCodeMethod(FluentCodeMethodBase<TThis> builder)
+        public static CodeMemberMethod GetCodeMethod(FluentCodeMethodBase<TThis, TWrappedType, TParent> builder)
         {
             return builder._wrappedType;
         }
@@ -124,11 +195,15 @@ namespace FluentCodeDom
         /// </summary>
         /// <param name="builder"></param>
         /// <returns></returns>
-        public static FluentCodeType GetPrarent(FluentCodeMethodBase<TThis> builder)
+        public static FluentCodeType<TParent> GetPrarent(FluentCodeMethodBase<TThis, TWrappedType, TParent> builder)
         {
             return builder._parent;
         }
 
+        public static FluentTypeMemberMethodDummy GetFluentCodeTypeMember(FluentCodeMethodBase<TThis, TWrappedType, TParent> builder)
+        {
+            return builder._codeTypeMember;
+        }
         /////////////////////////////////////////////////////////////////
         //                            Body                             //
         /////////////////////////////////////////////////////////////////
@@ -139,18 +214,10 @@ namespace FluentCodeDom
         {
             get
             {
-                return FluentCodeMethodBase<TThis>.GetCodeMethod(this).Statements;
+                return FluentCodeMethodBase<TThis, TWrappedType, TParent>.GetCodeMethod(this).Statements;
             }
         }
 
         #endregion
-
-        public class FluentMethodBody : FluentCodeBody<TThis, FluentMethodBody>
-        {
-            public FluentMethodBody(TThis method)
-                : base(method, method)
-            {
-            }
-        }
     }
 }

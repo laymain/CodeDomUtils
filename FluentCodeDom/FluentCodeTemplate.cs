@@ -25,7 +25,7 @@ namespace FluentCodeDom
 
         protected internal TParent _parent;
 
-        public virtual TParent End
+        protected virtual TParent EndInternal
         {
             get
             {
@@ -54,7 +54,7 @@ namespace FluentCodeDom
 
         protected internal TParent _parent;
 
-        public virtual TParent End
+        protected virtual TParent EndInternal
         {
             get
             {

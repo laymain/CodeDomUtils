@@ -23,64 +23,58 @@ namespace FluentCodeDom.Test
 
                     .Class(MemberAttributes.Public, "StringModifier")
                         .Constructor()
-                            .Body
-                            .End
-                        .End
+                        .EndConstructor
+                        
+                        .Field(typeof(int), "_fld").EndField
+                        .Field(MemberAttributes.Private, typeof(int), "_field1").EndField
+                        .Field(MemberAttributes.Private, typeof(DateTime), "_now").EndField
+                        .Field(typeof(DateTime), "_now2").EndField
 
-                        .Field(MemberAttributes.Private, typeof(int), "_field1").End
-                        .Field(MemberAttributes.Private, typeof(DateTime), "_now").End
-                        .Field(typeof(DateTime), "_now2").End
-
-                        .Field(typeof(int), "_intValue").End
+                        .Field(typeof(int), "_intValue").EndField
                         .Property(MemberAttributes.Public, typeof(int), "IntValue")
                             .Get
                                 .Return(Expr.Var("_intValue"))
-                            .End
+                            .EndGet
                             .Set
                                 .Set(Expr.Var("_intValue"), Expr.Value())
-                            .End
-                        .End
+                            .EndSet
+                        .EndProperty
 
-                        .Method(MemberAttributes.Public, "OutMethod").Parameter(typeof(int), "outParam").Body
+                        .Method(MemberAttributes.Public, "OutMethod").Parameter(typeof(int), "outParam")
                             .Set(Expr.Arg("outParam"), Expr.Primitive(55))
-                        .End.End
+                        .EndMethod
 
-                        .Method(MemberAttributes.Public, "HelloWorld").Body
+                        .Method(MemberAttributes.Public, "HelloWorld")
                             .CallStatic(typeof(Console), "WriteLine", Expr.Primitive("Hallo Welt"))
                             .CallStatic(typeof(Console), "ReadLine")
-                        .End.End
+                        .EndMethod
 
-                        .Method("StringSplit")
-                            .Parameter(typeof(string), "s")
-                            .Parameter(typeof(char), "seperationChar")
-                            .ReturnType(typeof(string))
-                            .Body
-                                .Declare(typeof(string[]), "stringArr", Expr.CallMember(Expr.Arg("s"), "Split", Expr.Arg("seperationChar")))
-                                
-                                .If(Expr.Op(Expr.Primitive(5), CodeBinaryOperatorType.ValueEquality, Expr.Primitive(10)))
-                                    .Declare(typeof(int), "abc")
-                                    .Set(Expr.Var("abc"), Expr.Primitive(5))
-                                .Else
-                                    .If(Expr.Primitive(false))
-                                        .Call("HelloWorld")
-                                    .End
+                        .Method("StringSplit").Parameter(typeof(string), "s").Parameter(typeof(char), "seperationChar").ReturnType(typeof(string))
+                            .Declare(typeof(string[]), "stringArr", Expr.CallMember(Expr.Arg("s"), "Split", Expr.Arg("seperationChar")))
+                            
+                            .If(Expr.Op(Expr.Primitive(5), CodeBinaryOperatorType.ValueEquality, Expr.Primitive(10)))
+                                .Declare(typeof(int), "abc")
+                                .Set(Expr.Var("abc"), Expr.Primitive(5))
+                            .Else
+                                .If(Expr.Primitive(false))
+                                    .Call("HelloWorld")
+                                .EndIf
 
-                                    .Declare(typeof(int[]), "array", Expr.NewArray(typeof(int), Expr.Primitive(5) ))
-                                    .ForArray("i", Expr.Var("array"))
-                                    .End
-                                .End
+                                .Declare(typeof(int[]), "array", Expr.NewArray(typeof(int), Expr.Primitive(5) ))
+                                .ForArray("i", Expr.Var("array"))
+                                .EndFor
+                            .EndIf
 
-                                .Return(Expr.ArrayIndex(Expr.Var("stringArr"), Expr.Primitive(0)))
-                            .End
-                        .End
-                    .End
+                            .Return(Expr.ArrayIndex(Expr.Var("stringArr"), Expr.Primitive(0)))
+                        .EndMethod
+                    .EndClass
 
                     .Enum(MemberAttributes.Public, "SuperEnum")
-                        .Value("Unit", 1).End
-                        .Value("Testing", 2).End
-                        .Value("Sucks").End
-                    .End
-                .End
+                        .Value("Unit", 1).EndValue
+                        .Value("Testing", 2).EndValue
+                        .Value("Sucks").EndValue
+                    .EndEnum
+                .EndNamespace
             .EndFluent();
 
             TestGenerated(compileUnit);
@@ -93,25 +87,25 @@ namespace FluentCodeDom.Test
                 .Class("AClass").Inherits("BaseClass")
                     .Constructor(MemberAttributes.Public)
                         .BaseArgs()
-                    .End
+                    .EndConstructor
 
                     .Constructor(MemberAttributes.Public).Parameter(typeof(int), "IntArg")
                         .ThisArgs(Expr.Arg("IntArg"), Expr.Primitive("Hello"))
-                    .End
+                    .EndConstructor
 
                     .Constructor(MemberAttributes.Public).Parameter(typeof(int), "IntArg").Parameter(typeof(string), "StringArg")
                         .BaseArgs(Expr.Arg("StringArg"))
-                    .End
-                .End
+                    .EndConstructor
+                .EndClass
 
                 .Class("BaseClass")
                     .Constructor(MemberAttributes.Public)
-                    .End
+                    .EndConstructor
 
-                    .Constructor(MemberAttributes.Public).Parameter(typeof(string), "TextToPrint").Body
+                    .Constructor(MemberAttributes.Public).Parameter(typeof(string), "TextToPrint")
                         .CallStatic(typeof(Console), "WriteLine", Expr.Arg("TextToPrint"))
-                    .End
-                .End
+                    .EndConstructor
+                .EndClass
             .EndFluent();
 
             Assembly assembly = TestGenerated(compileUnit.EndFluent());
@@ -125,10 +119,10 @@ namespace FluentCodeDom.Test
             FluentCodeCompileUnit compileUnit = new FluentCodeCompileUnit();
             compileUnit.Namespace("TestNamespace")
                 .Enum("TestEnum").CustomAttribute(typeof(FlagsAttribute))
-                    .Value("Value1", Expr.Primitive(1)).End
-                    .Value("Value2", Expr.Primitive(2)).End
-                    .Value("Value3", Expr.Primitive(4)).End
-                .End
+                    .Value("Value1", Expr.Primitive(1)).EndValue
+                    .Value("Value2", Expr.Primitive(2)).EndValue
+                    .Value("Value3", Expr.Primitive(4)).EndValue
+                .EndEnum
             .EndFluent();
 
             TestGenerated(compileUnit.EndFluent());
@@ -136,27 +130,22 @@ namespace FluentCodeDom.Test
 
         public static void ClassDeclaration()
         {
-            CodeTypeDeclaration cls = new FluentCodeType()
-                .Method("TestMethod")
-                    .Attributes(MemberAttributes.Public)
-                    .Parameter(typeof(string), "parameter1")
-                    .ReturnType(typeof(int))
-                    .Body
-                        .Declare(typeof(DateTime), "supervar", Expr.Primitive(5))
-                        .Call("method")
-                        .Return()
-                    .End
-                .End
+            CodeTypeDeclaration cls = new FluentCodeClass()
+                .Method("TestMethod").Attributes(MemberAttributes.Public).Parameter(typeof(string), "parameter1").ReturnType(typeof(int))
+                    .Declare(typeof(DateTime), "supervar", Expr.Primitive(5))
+                    .Call("method")
+                    .Return()
+                .EndMethod
             .EndFluent();
 
-            var type2 = new FluentCodeType().Name("MathType");
-            type2.Method("Add").Parameter(typeof(int), "IntA").Parameter(typeof(int), "IntB").Body
+            var type2 = new FluentCodeClass().Name("MathType");
+            type2.Method("Add").Parameter(typeof(int), "IntA").Parameter(typeof(int), "IntB")
                 .Return((int a, int b) => a + b)
-            .End.EndFluent();
+            .EndFluent();
 
-            type2.Method("Subtract").Parameter(typeof(int), "IntA").Parameter(typeof(int), "IntB").Body
+            type2.Method("Subtract").Parameter(typeof(int), "IntA").Parameter(typeof(int), "IntB")
                 .Return((int a, int b) => a - b)
-            .End.EndFluent();
+            .EndFluent();
 
             var compileUnit = new CodeCompileUnit();
             var ns = new CodeNamespace();
@@ -171,19 +160,19 @@ namespace FluentCodeDom.Test
             var ns = new FluentCodeCompileUnit().Namespace("TestNamespace")
                 .Import("System");
 
-            FluentCodeType type = ns.Class(MemberAttributes.Public, "TryCatchClass");
+            FluentCodeClass type = ns.Class(MemberAttributes.Public, "TryCatchClass");
 
-            type.Method(MemberAttributes.Public, "TryCatchMethod").Body
+            type.Method(MemberAttributes.Public, "TryCatchMethod")
                 .Try
                     .Throw(Expr.New(typeof(Exception), Expr.Primitive("Evil Exception")))
                 .Catch(typeof(Exception), "ex")
                     .CallStatic(typeof(Console), "WriteLine", Expr.Primitive("Catch Block"))
                 .Finally
                     .CallStatic(typeof(Console), "WriteLine", Expr.Primitive("Finally Block"))
-                .End
-            .End.End.EndFluent();
+                .EndTry
+            .EndMethod.EndFluent();
 
-            CodeCompileUnit compileUnit = ns.End.EndFluent();
+            CodeCompileUnit compileUnit = ns.EndNamespace.EndFluent();
             TestGenerated(compileUnit);
         }
 
@@ -191,25 +180,23 @@ namespace FluentCodeDom.Test
         {
             var ns = new FluentCodeCompileUnit().Namespace("TestNamespace");
             ns.Class("AClass")
-                .Method(MemberAttributes.Public, "LinqTest").ReturnType(typeof(bool)).Body
-                    
+                .Method(MemberAttributes.Public, "LinqTest").ReturnType(typeof(bool))
                     .Declare(typeof(int), "a", Expr.Primitive(5))
                     .Declare(typeof(int), "b", Expr.Primitive(6))
                     .If((int a, int b) => a > b)
                         .Declare(typeof(string), "text", Expr.Primitive("A is bigger than B"))
                         .Stmt((string text) => Console.WriteLine(text))
+                        .Stmt(ExprLinq.Expr(() => Console.Read()))
                     .Else
                         .Declare(typeof(string), "text", Expr.Primitive("B is bigger or equal A"))
                         .Stmt((string text) => Console.WriteLine(text))
-                        .Stmt(ExprLinq.Expr(() => Console.Read()))
-                    .End
+                    .EndIf
 
-                    .Stmt(() => Console.ReadLine())
                     .Return((int a, int b) => a > b)
-                .End
+                .EndMethod
             .EndFluent();
 
-            CodeCompileUnit compileUnit = ns.End.EndFluent();
+            CodeCompileUnit compileUnit = ns.EndNamespace.EndFluent();
             Assembly assembly = TestGenerated(compileUnit);
 
             object instance = GetClassInstance("TestNamespace.AClass", assembly);
@@ -220,7 +207,7 @@ namespace FluentCodeDom.Test
         { 
             var ns = new FluentCodeCompileUnit().Namespace("TestNamespace");
             ns.Class("AClass")
-                .Method(MemberAttributes.Public, "ForArrayTest").Body
+                .Method(MemberAttributes.Public, "ForArrayTest")
                     .CallStatic(typeof(Console), "WriteLine", Expr.Primitive("ForArrayTest:"))
                     .Declare(typeof(string[]), "sArr", Expr.NewArray(typeof(string), Expr.Primitive(2)))
                     .Set(Expr.ArrayIndex(Expr.Var("sArr"), Expr.Primitive(0)), Expr.Primitive("Hallo1"))
@@ -228,10 +215,10 @@ namespace FluentCodeDom.Test
 
                     .ForArray("i", Expr.Var("sArr"))
                         .CallStatic(typeof(Console), "WriteLine", Expr.ArrayIndex(Expr.Var("sArr"), Expr.Var("i")))
-                    .End
-                .End.End
+                    .EndFor
+                .EndMethod
 
-                .Method(MemberAttributes.Public, "ForeachTest").Body
+                .Method(MemberAttributes.Public, "ForeachTest")
                     .CallStatic(typeof(Console), "WriteLine", Expr.Primitive("ForeachTest:"))
                     .Declare(typeof(string[]), "sArr", Expr.NewArray(typeof(string), Expr.Primitive(2)))
                     .Set(Expr.ArrayIndex(Expr.Var("sArr"), Expr.Primitive(0)), Expr.Primitive("Hallo1"))
@@ -239,20 +226,20 @@ namespace FluentCodeDom.Test
 
                     .ForeachEmu(typeof(string), "s", Expr.Var("sArr"))
                         .CallStatic(typeof(Console), "WriteLine", Expr.Var("s"))
-                    .End
-                .End.End
+                    .EndForeach
+                .EndMethod
 
-                .Method(MemberAttributes.Public, "WhileTest").Body
+                .Method(MemberAttributes.Public, "WhileTest")
                     .CallStatic(typeof(Console), "WriteLine", Expr.Primitive("WhileTest:"))
                     .Declare(typeof(int), "a", Expr.Primitive(1))
                     .WhileEmu(Expr.Op(Expr.Var("a"), CodeBinaryOperatorType.LessThanOrEqual, Expr.Primitive(10)))
                         .CallStatic(typeof(Console), "WriteLine", Expr.CallStatic(typeof(string), "Format", Expr.Primitive("Value: {0}"), Expr.Var("a")))
                         .Set(Expr.Var("a"), Expr.Op(Expr.Var("a"), CodeBinaryOperatorType.Add, Expr.Primitive(1)))
-                    .End.End
-                .End
+                    .EndWhile
+                .EndMethod
             .EndFluent();
 
-            CodeCompileUnit compileUnit = ns.End.EndFluent();
+            CodeCompileUnit compileUnit = ns.EndNamespace.EndFluent();
             Assembly assembly = TestGenerated(compileUnit);
 
             object instance = GetClassInstance("TestNamespace.AClass", assembly);
@@ -276,26 +263,28 @@ namespace FluentCodeDom.Test
 
             var ns = new FluentCodeCompileUnit().Namespace("TestNamespace");
             ns.Class("AClass")
-                .Method(MemberAttributes.Public, "UsingTest").Body
+                .Method(MemberAttributes.Public, "UsingTest")
                     .Declare(typeof(System.IO.FileStream), "fs", Expr.CallStatic(typeof(System.IO.File), "OpenRead", Expr.Primitive(path)))
                     .UsingEmu(Expr.Var("fs"))
                         .UsingEmu(Expr.Declare(typeof(StreamReader), "sr", Expr.New(typeof(StreamReader), Expr.Var("fs"))))
                             .CallStatic(typeof(Console), "WriteLine", Expr.CallMember(Expr.Var("sr"), "ReadToEnd"))
-                        .End
-                    .End
-                .End
+                        .EndUsing
+                    .EndUsing
+                .EndMethod
             .EndFluent();
 
-            CodeCompileUnit compileUnit = ns.End.EndFluent();
+            CodeCompileUnit compileUnit = ns.EndNamespace.EndFluent();
             Assembly assembly = TestGenerated(compileUnit);
 
             object instance = GetClassInstance("TestNamespace.AClass", assembly);
             instance.GetType().GetMethod("UsingTest").Invoke(instance, new object[] { });
         }
 
+        public static System.CodeDom.Compiler.CodeDomProvider CodeDomProvider = new Microsoft.CSharp.CSharpCodeProvider();
+
         private static Assembly TestGenerated(CodeCompileUnit compileUnit)
         {
-            string code = CodeDomHelper.GenerateCodeAsString(compileUnit, new Microsoft.CSharp.CSharpCodeProvider());
+            string code = CodeDomHelper.GenerateCodeAsString(compileUnit, DeclarationTest.CodeDomProvider);
             Console.Write(code);
 
             var sw = new System.Diagnostics.Stopwatch();

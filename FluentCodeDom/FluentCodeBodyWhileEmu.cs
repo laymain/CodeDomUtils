@@ -5,31 +5,32 @@ using System.CodeDom;
 
 namespace FluentCodeDom
 {
-    public abstract partial class FluentCodeBody<TParent, TThis>
+    public class WhileEmuCodeBody<TParent> : IteratorCodeBody<TParent ,WhileEmuCodeBody<TParent>>
     {
-        public class WhileEmuCodeBody : IteratorCodeBody<WhileEmuCodeBody>
+        public WhileEmuCodeBody(CodeExpression testExpression, TParent parent)
+            : base(BuildIteratorStatement(testExpression), parent)
         {
-            public WhileEmuCodeBody(CodeExpression testExpression, FluentCodeBody<TParent, TThis> parent)
-                : base(BuildIteratorStatement(testExpression), parent)
-            {
-            }
+        }
 
-            private static CodeIterationStatement BuildIteratorStatement(CodeExpression testExpression)
-            {
-                var whileStmt = new CodeIterationStatement();
-                whileStmt.InitStatement = new CodeSnippetStatement(" ");
-                whileStmt.TestExpression = testExpression;
-                whileStmt.IncrementStatement = new CodeSnippetStatement(" ");
+        private static CodeIterationStatement BuildIteratorStatement(CodeExpression testExpression)
+        {
+            var whileStmt = new CodeIterationStatement();
+            whileStmt.InitStatement = new CodeSnippetStatement(" ");
+            whileStmt.TestExpression = testExpression;
+            whileStmt.IncrementStatement = new CodeSnippetStatement(" ");
 
-                return whileStmt;
-            }
+            return whileStmt;
+        }
 
-            public override FluentCodeBody<TParent, TThis> End
+        /////////////////////////////////////////////////////////////////
+        //                             End                             //
+        /////////////////////////////////////////////////////////////////
+
+        public TParent EndWhile
+        {
+            get
             {
-                get
-                {
-                    return base.End;
-                }
+                return EndInternal;
             }
         }
     }

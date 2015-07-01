@@ -26,31 +26,30 @@ namespace FluentCodeDom.Sample2
 
             // public class <Interface>Test : <Interface>
             string typeName = string.Format("{0}Test", interfaceType.Name);
-            FluentCodeType type = ns.Class(typeName).Inherits(interfaceType);
+            var type = ns.Class(typeName).Inherits(interfaceType);
 
             foreach (MethodInfo methodInfo in interfaceType.GetMethods())
             {
                 // Console.WriteLine("<Method> called with Parameters:")
-                FluentCodeMethod method =
-                    type.Method(MemberAttributes.Public, methodInfo.Name).Body
-                        .CallStatic(typeof(Console), "WriteLine", Expr.Primitive(string.Format("{0} called with parameters:", methodInfo.Name)))
-                    .End;
+                var method =
+                    type.Method(MemberAttributes.Public, methodInfo.Name)
+                        .CallStatic(typeof(Console), "WriteLine", Expr.Primitive(string.Format("{0} called with parameters:", methodInfo.Name)));
 
                 foreach (ParameterInfo paramInfo in methodInfo.GetParameters())
                 {
                     method.Parameter(paramInfo.ParameterType, paramInfo.Name);
 
                     // Console.WriteLine("<ParamName>: <Value>")
-                    method.Body
-                        .CallStatic(typeof(Console), "WriteLine",
+                    method.CallStatic(typeof(Console), "WriteLine",
                             Expr.CallStatic(typeof(string), "Format",
                                 Expr.Primitive(string.Format("{0}: {1}", paramInfo.Name, "{1}")),
                                 Expr.CallMember(Expr.Arg(paramInfo.Name), "ToString")
-                                ));
+                                )
+                            );
                 }
             }
 
-            CodeCompileUnit compileUnit = ns.End.EndFluent();
+            CodeCompileUnit compileUnit = ns.EndNamespace.EndFluent();
 
             // Display Code
             string code = Helper.CodeDomHelper.GenerateCodeAsString(compileUnit, new CSharpCodeProvider());

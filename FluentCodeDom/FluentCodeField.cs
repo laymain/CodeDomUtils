@@ -5,7 +5,8 @@ using System.CodeDom;
 
 namespace FluentCodeDom
 {
-    public class FluentCodeField : FluentCodeTypeMember<FluentCodeField, CodeMemberField, FluentCodeType>
+    public class FluentCodeField<TParent> : FluentCodeTypeMember<FluentCodeField<TParent>, CodeMemberField, TParent>
+        where TParent : FluentCodeType<TParent>
     {
         public FluentCodeField()
             : this(new CodeMemberField())
@@ -17,8 +18,8 @@ namespace FluentCodeDom
         {
         }
 
-        public FluentCodeField(CodeMemberField field, FluentCodeType type)
-            : base(field, type)
+        public FluentCodeField(CodeMemberField field, FluentCodeType<TParent> type)
+            : base(field, (TParent)type)
         {
         }
 
@@ -26,41 +27,53 @@ namespace FluentCodeDom
         //                           Public                            //
         /////////////////////////////////////////////////////////////////
 
-        public FluentCodeField Name(string name)
+        public FluentCodeField<TParent> Name(string name)
         {
             _wrappedType.Name = name;
             return this;
         }
 
-        public FluentCodeField Type(Type type)
+        public FluentCodeField<TParent> Type(Type type)
         {
             _wrappedType.Type = new CodeTypeReference(type);
             return this;
         }
 
-        public FluentCodeField Type(CodeTypeReference type)
+        public FluentCodeField<TParent> Type(CodeTypeReference type)
         {
             _wrappedType.Type = type;
             return this;
         }
 
-        public FluentCodeField Attributes(MemberAttributes attributes)
+        public FluentCodeField<TParent> Attributes(MemberAttributes attributes)
         {
             _wrappedType.Attributes = attributes;
             return this;
         }
 
-        public FluentCodeField DefaultValue(CodeExpression expression)
+        public FluentCodeField<TParent> DefaultValue(CodeExpression expression)
         {
             _wrappedType.InitExpression = expression;
             return this;
         }
 
         /////////////////////////////////////////////////////////////////
+        //                             End                             //
+        /////////////////////////////////////////////////////////////////
+
+        public TParent EndField
+        {
+            get
+            {
+                return EndInternal;
+            }
+        }
+
+        /////////////////////////////////////////////////////////////////
         //                           Static                            //
         /////////////////////////////////////////////////////////////////
 
-        public static CodeMemberField GetCodeField(FluentCodeField field)
+        public static CodeMemberField GetCodeField(FluentCodeField<TParent> field)
         {
             return field._wrappedType;
         }
